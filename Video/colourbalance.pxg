@@ -1,0 +1,26 @@
+@ ./colourbalance video:custom {
+  #%graph.x 0
+  #%graph.y 0
+  .code "
+
+    @In(1) PImage in;
+    
+    @P(1) @Type.Number(min = 0, max = 1, def = 1)
+    double red;
+    @P(2) @Type.Number(min = 0, max = 1, def = 1)
+    double green;
+    @P(3) @Type.Number(min = 0, max = 1, def = 1)
+    double blue;
+
+    @Override
+    public void draw() \{
+        copy(in);
+        release(in);
+        noStroke();
+        blendMode(MULTIPLY);
+        fill(red * 255, green * 255, blue * 255);
+        rect(0, 0, width, height);
+    \}
+"
+}
+

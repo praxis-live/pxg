@@ -1,0 +1,47 @@
+@ ./gl-filter-base video:gl:p3d {
+  #%graph.x 0
+  #%graph.y 0
+  .code "
+
+//     @P(1) double u1;
+    
+    void updateUniforms() \{
+//         shader.set(\"u1\", u1);
+    \}
+
+    
+    // BOILERPLATE BELOW
+    @In(0)
+    PImage in;
+    @P(0)
+    @Type.String(mime = GLSL_FRAGMENT_MIME, template = DEFAULT_FRAGMENT_SHADER)
+    @OnChange(\"updateShader\")
+    @Port(false)
+    String fragment;
+
+    PShader shader;
+
+    @Override
+    public void setup() \{
+        updateShader();
+    \}
+
+    @Override
+    public void draw() \{
+        if (shader == null) \{
+            shader = createShader(DEFAULT_VERTEX_SHADER,
+                    fragment.isEmpty() ? DEFAULT_FRAGMENT_SHADER : fragment);
+        \}
+        shader(shader);
+        updateUniforms();
+        image(in, 0, 0);
+        resetShader();
+    \}
+
+    void updateShader() \{
+        shader = null;
+    \}
+
+"
+}
+

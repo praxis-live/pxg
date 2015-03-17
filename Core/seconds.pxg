@@ -1,0 +1,23 @@
+@ ./seconds core:custom {
+  #%graph.x 0
+  #%graph.y 0
+  .code "
+
+    @P(1) @ReadOnly Property seconds;
+    @Out(1) Output out;
+    
+    @Override
+    public void update() \{
+        if (!seconds.isAnimating()) \{
+            seconds.set(0).to(86400).in(86400);
+        \}
+        out.send(d(seconds));
+    \}
+    
+    @T(1) void reset() \{
+        seconds.set(0);
+    \}
+    
+"
+}
+

@@ -1,0 +1,71 @@
+@ ./pinch video:gl:p3d {
+  #%graph.x 0
+  #%graph.y 0
+  .code "
+
+     @P(1) @Type.Number(min = 0, max = 1, def = 1)
+     double amount;
+    
+    void updateUniforms() \{
+         shader.set(\"amount\", amount);
+    \}
+
+    
+    // BOILERPLATE BELOW
+    @In(0)
+    PImage in;
+    @P(0)
+    @Type.String(mime = GLSL_FRAGMENT_MIME, template = DEFAULT_FRAGMENT_SHADER)
+    @OnChange(\"updateShader\")
+    @Port(false)
+    String fragment;
+
+    PShader shader;
+
+    @Override
+    public void setup() \{
+        updateShader();
+    \}
+
+    @Override
+    public void draw() \{
+        if (shader == null) \{
+            shader = createShader(DEFAULT_VERTEX_SHADER,
+                    fragment.isEmpty() ? DEFAULT_FRAGMENT_SHADER : fragment);
+        \}
+        shader(shader);
+        updateUniforms();
+        image(in, 0, 0);
+        resetShader();
+    \}
+
+    void updateShader() \{
+        shader = null;
+    \}
+
+"
+  .fragment "varying vec4 vertColor;
+varying vec4 vertTexCoord;
+
+uniform sampler2D texture;
+uniform vec2 texOffset;
+uniform float amount;
+
+vec2 distort(vec2 p) \{
+  p.x = (p.x * 2.0) - 1.0; 
+  p.y = (p.y * 2.0) - 1.0; 
+  float theta  = atan(p.y, p.x);
+  float radius = length(p);
+  radius = pow(radius, amount);
+  p.x = radius * cos(theta);
+  p.y = radius * sin(theta);
+  return 0.5 * (p + 1.0);
+\}
+
+void main() \{
+  vec2 tex = distort(vertTexCoord.st);
+  vec4 frag = texture2D(texture, tex) ;
+  gl_FragColor = frag;
+\}"
+}
+

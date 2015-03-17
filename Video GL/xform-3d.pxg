@@ -1,0 +1,43 @@
+@ ./xform-3d video:gl:p3d {
+  #%graph.x 0
+  #%graph.y 0
+  .code "
+
+    @In(1)
+    PImage in;
+    @P(1)
+    @Type.Number(min = 0, max = 1, def = 0.5)
+    double translate_x;
+    @P(2)
+    @Type.Number(min = 0, max = 1, def = 0.5)
+    double translate_y;
+    @P(3)
+    @Type.Number(min = -180, max = 180, def = 0)
+    double rotate_x;
+    @P(4)
+    @Type.Number(min = -180, max = 180, def = 0)
+    double rotate_y;
+    @P(5)
+    @Type.Number(min = -180, max = 180, def = 0)
+    double rotate_z;
+    @P(6)
+    @Type.Number(min = 0, max = 2, def = 1)
+    double scale;
+    
+    @Override
+    public void draw() \{
+        double w2 = width / 2;
+        double h2 = height / 2;
+        translate(
+                map(translate_x, 0, 1, -w2, width + w2), 
+                map(translate_y, 0, 1, -h2, height + h2), 
+                0);
+        rotateX(map(rotate_x, -180, 180, -PI, PI));
+        rotateY(map(rotate_y, -180, 180, -PI, PI));
+        rotateZ(map(rotate_z, -180, 180, -PI, PI));
+        scale(scale);
+        image(in, -w2, -h2);
+    \}
+"
+}
+
