@@ -10,6 +10,16 @@ Download the [latest zip file](https://github.com/praxis-live/pxg/archive/master
 
 Under active development - lots more to come!
 
+### Audio
+
+Components that can be used in any audio graph.
+
+* `audio-clock.pxg` - clock synced to sample time. Time specified in BPM and subdivisions.
+* `mono-kit.pxg` - simple 6-sample player with triggers and levels. Useful for drum samples.
+* `synth-base.pxg` - basis for a monophonic synthesizer.
+* `synth-duo-osc.pxg` - monophonic analog style synthesizer with two oscillators and resonant filter with envelope modulation.
+* `synth-pm3.pxg` - monophonic phase-modulation synthesizer.
+
 ### Core
 
 Components that can be used in any graph (audio, video, tinkerforge, etc.).

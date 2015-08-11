@@ -1,0 +1,101 @@
+@ ./mono-kit audio:custom {
+  #%graph.x 0
+  #%graph.y 0
+  .code "
+
+    @Out(1)
+    AudioOut out;
+    
+    @P(1) @OnChange(\"updateTables\") @Port(false)
+    Table sample1;
+    @P(2) @OnChange(\"updateTables\") @Port(false)
+    Table sample2;
+    @P(3) @OnChange(\"updateTables\") @Port(false)
+    Table sample3;
+    @P(4) @OnChange(\"updateTables\") @Port(false)
+    Table sample4;
+    @P(5) @OnChange(\"updateTables\") @Port(false)
+    Table sample5;
+    @P(6) @OnChange(\"updateTables\") @Port(false)
+    Table sample6;
+
+    @P(7) @Type.Number(min=0, max=1, def=1) @OnChange(\"updateLevels\")
+    double level1;
+    @P(8) @Type.Number(min=0, max=1, def=1) @OnChange(\"updateLevels\")
+    double level2;
+    @P(9) @Type.Number(min=0, max=1, def=1) @OnChange(\"updateLevels\")
+    double level3;
+    @P(10) @Type.Number(min=0, max=1, def=1) @OnChange(\"updateLevels\")
+    double level4;
+    @P(11) @Type.Number(min=0, max=1, def=1) @OnChange(\"updateLevels\")
+    double level5;
+    @P(12) @Type.Number(min=0, max=1, def=1) @OnChange(\"updateLevels\")
+    double level6;
+    
+    @UGen
+    Player pl1, pl2, pl3, pl4, pl5, pl6;
+    @UGen
+    Gain g1, g2, g3, g4, g5, g6;
+
+    @Override
+    public void setup() \{
+        updateTables();
+        updateLevels();
+        link(
+                add(
+                        link(pl1, g1),
+                        link(pl2, g2),
+                        link(pl3, g3),
+                        link(pl4, g4),
+                        link(pl5, g5),
+                        link(pl6, g6)
+                ),
+                out     
+        );
+    \}
+    
+    void updateTables() \{
+        pl1.table(sample1);
+        pl2.table(sample2);
+        pl3.table(sample3);
+        pl4.table(sample4);
+        pl5.table(sample5);
+        pl6.table(sample6);
+    \}
+    
+    void updateLevels() \{
+        g1.level(level1 * level1);
+        g2.level(level2 * level2);
+        g3.level(level3 * level3);
+        g4.level(level4 * level4);
+        g5.level(level5 * level5);
+        g6.level(level6 * level6);
+    \}
+    
+    @T(1) void play1() \{
+        pl1.play();
+    \}
+    
+    @T(2) void play2() \{
+        pl2.play();
+    \}
+    
+    @T(3) void play3() \{
+        pl3.play();
+    \}
+    
+    @T(4) void play4() \{
+        pl4.play();
+    \}
+    
+    @T(5) void play5() \{
+        pl5.play();
+    \}
+    
+    @T(6) void play6() \{
+        pl6.play();
+    \}
+    
+"
+}
+

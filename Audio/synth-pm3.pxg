@@ -1,0 +1,91 @@
+@ ./PM3 audio:custom {
+  #%graph.x 0
+  #%graph.y 0
+  .code "
+
+    @Out(1) AudioOut out;
+    
+    @UGen Osc mod;
+    @UGen LFO lfo;
+    @UGen OpGen car;
+    @UGen Gain amp;
+    
+    @P(1) @Type.Number(min=0, max=1, def=1)
+    double level;
+    @P(2) @Type.Number(min=0, max=2) @Port(false)
+    double attack;
+    @P(3) @Type.Number(min=0, max=2, def=2) @Port(false)
+    double decay;
+    @P(4) @Type.Number(min=0, max=1, def=1) @Port(false)
+    double sustain;
+    @P(5) @Type.Number(min=0, max=2, def=0) @Port(false)
+    double release;
+    @P(6) @Type.Number(min=0, max=16, def=1) @Port(false)
+    double modRatio;
+    @P(7) @Type.Number(min=0, max=1) @Port(false)
+    double modLevel;
+    @P(8) @Type.Number(min=0, max=2) @Port(false)
+    double modAttack;
+    @P(9) @Type.Number(min=0, max=2, def=2) @Port(false)
+    double modDecay;
+    @P(10) @Type.Number(min=0, max=1, def=1) @Port(false)
+    double modSustain;
+    @P(11) @Type.Number(min=0, max=16, def=1) @Port(false)
+    double lfoFrequency;
+    @P(12) @Type.Number(min=0, max=1, def=0) @Port(false)
+    double lfoLevel;
+
+    @Inject Property modEnv, ampEnv;
+    @Inject double frequency, phase;
+    
+    @Override
+    public void setup() \{
+        car.function(new Function() \{
+
+            @Override
+            public double process(double d) \{
+                phase += (frequency / sampleRate) * TWO_PI;
+                while (phase > TWO_PI) \{
+                    phase -= TWO_PI;
+                \}
+                return sin(phase + (d * TWO_PI));
+            \}
+        \});
+
+        link(add(mod, lfo), car, amp, out);
+    \}
+
+    @Override
+    public void update() \{
+        mod.frequency(modRatio * frequency).gain(d(modEnv) * modLevel);
+        lfo.frequency(lfoFrequency).gain(lfoLevel);
+        double e = d(ampEnv) * level;
+        e = e * e;
+        amp.level(e);
+    \} 
+    
+    @In(1) void note(String note) \{
+        if (\"-\".equals(note)) \{
+            return;
+        \}
+        int midi = noteToMidi(note);
+        if (midi > 0) \{
+            noteOn(midi);
+        \} else \{
+            noteOff();
+        \}
+    \}
+    
+    void noteOn(int midi) \{
+        frequency = midiToFrequency(midi);
+        modEnv.to(1, modSustain).in(modAttack, modDecay);
+        ampEnv.to(1, sustain).in(attack, decay);
+    \}
+    
+    void noteOff() \{
+        ampEnv.to(0).in(release);
+    \}
+      
+"
+}
+
