@@ -14,7 +14,10 @@ Under active development - lots more to come!
 
 Components that can be used in any graph (audio, video, tinkerforge, etc.).
 
+* `routing-every.pxg` - Allow every n-th signal through.
+* `routing-order.pxg` - Help order signals through connections - input send to all `out-1` connections before `out-2` connections.
 * `seconds.pxg` - Output running time in seconds.
+* `tracker.pxg` - 4-channel tracker sequencing component (UI editing currently limited - see *jazzy synthesis* example for usage)
 
 ### Video
 
