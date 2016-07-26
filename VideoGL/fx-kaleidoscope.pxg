@@ -1,4 +1,4 @@
-@ ./kaleidoscope video:gl:p3d {
+@ ./kaleidoscope video:gl:p2d {
   #%graph.x 0
   #%graph.y 0
   .code "
