@@ -1,0 +1,32 @@
+@ ./normalize core:custom {
+  #%graph.x 0
+  #%graph.y 0
+  .code "
+
+    @P(1) @ReadOnly double max;
+    @P(2) @Type.Number(min = 0, max = 0.1) @Port(false) double decrement;
+    
+    @Out(1) Output out;
+    
+    @Override
+    public void setup() \{
+        max = 0;
+    \}
+
+    @In(1) void in(double value) \{
+        if (max > decrement) \{
+            max -= decrement;
+        \}
+        if (value > max) \{
+            max = value;
+        \}
+        if (max > 0) \{
+            out.send(value / max);
+        \} else \{
+            out.send(0);
+        \}
+    \}
+"
+  .decrement 0.00001
+}
+

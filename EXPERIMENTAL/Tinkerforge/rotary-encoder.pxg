@@ -1,0 +1,84 @@
+@ ./rotary-encoder tinkerforge:custom {
+  #%graph.x 0
+  #%graph.y 0
+  .code "
+
+    final String VALUE = \"Value\";
+    final String SIGNAL = \"Signal\";
+    
+    @TinkerForge BrickletRotaryEncoder encoder;
+    
+    @P(1) @Port(false) @Type.String(allowed = \{VALUE, SIGNAL\})
+            String buttonMode;
+    @P(2) @ReadOnly int value;
+    @P(3) @ReadOnly boolean button;
+    @Out(1) @ID(\"value\") Output out;
+    @Out(2) @ID(\"button\") Output outButton;
+    
+    Listener listener = new Listener();
+    
+    @Override
+    public void setup() \{
+        encoder.addCountListener(listener);
+        try \{
+            encoder.setCountCallbackPeriod(CALLBACK_PERIOD);
+            encoder.addPressedListener(listener);
+            encoder.addReleasedListener(listener);
+        \} catch (TimeoutException | NotConnectedException ex) \{
+            log(WARNING, ex);
+        \}
+    \}
+
+    @Override
+    public void dispose() \{
+        encoder.removeCountListener(listener);
+        encoder.removePressedListener(listener);
+        encoder.removeReleasedListener(listener);
+        try \{
+            encoder.setCountCallbackPeriod(0);
+        \} catch (TimeoutException | NotConnectedException ex) \{
+            log(WARNING, ex);
+        \}
+    \}
+    
+    @T(1) void reset() \{
+        try \{
+            encoder.getCount(true);
+            value = 0;
+            out.send(0);
+        \} catch (TimeoutException | NotConnectedException ex) \{
+            log(WARNING, ex);
+        \}
+    \}
+    
+    private class Listener implements BrickletRotaryEncoder.CountListener,
+            BrickletRotaryEncoder.PressedListener, BrickletRotaryEncoder.ReleasedListener \{
+
+        @Override
+        public void count(int position) \{
+            value = position;
+            out.send(value);
+        \}
+
+        @Override
+        public void pressed() \{
+            button = true;
+            if (VALUE.equals(buttonMode)) \{
+                outButton.send(true);
+            \} else \{
+                outButton.send();
+            \}
+        \}
+
+        @Override
+        public void released() \{
+            button = false;
+            if (VALUE.equals(buttonMode)) \{
+                outButton.send(false);
+            \}
+        \}
+        
+    \}
+"
+}
+

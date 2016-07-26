@@ -1,0 +1,37 @@
+@ ./framerate video:custom {
+  #%graph.x 0
+  #%graph.y 0
+  .code "
+
+    @In(1)
+    PImage in;
+
+    @P(1)
+    @ReadOnly
+    int fps;
+
+    @Inject
+    Property timer;
+    @Inject
+    int frames;
+
+    @Override
+    public void setup() \{
+        frames = fps = 0;
+    \}
+
+    @Override
+    public void draw() \{
+        copy(in);
+        release(in);
+        if (!timer.isAnimating()) \{
+            timer.set(0).to(1).in(1);
+            fps = frames;
+            frames = 0;
+        \}
+        frames++;
+
+    \}
+"
+}
+

@@ -8,7 +8,18 @@ Download the [latest zip file](https://github.com/praxis-live/pxg/archive/master
 
 ## Components
 
-Under active development - lots more to come!
+Under active development - lots more to come! Components marked EXPERIMENTAL are in the EXPERIMENTAL folder, and may not be well tested or fully functional.
+
+### Core
+
+Components that can be used in any graph (audio, video, tinkerforge, etc.).
+
+* `routing-every.pxg` - Allow every n-th signal through.
+* `routing-order.pxg` - Help order signals through connections - input send to all `out-1` connections before `out-2` connections.
+* `seconds.pxg` - Output running time in seconds.
+* `tracker.pxg` - 4-channel tracker sequencing component (UI editing currently limited - see *jazzy synthesis* example for usage)
+* `array-map.pxg` (EXPERIMENTAL) - map a range from 0 to 1 to values in an array.
+* `normalize.pxg` (EXPERIMENTAL) - normalize incoming signals to between 0 and 1.
 
 ### Audio
 
@@ -20,21 +31,13 @@ Components that can be used in any audio graph.
 * `synth-duo-osc.pxg` - monophonic analog style synthesizer with two oscillators and resonant filter with envelope modulation.
 * `synth-pm3.pxg` - monophonic phase-modulation synthesizer.
 
-### Core
-
-Components that can be used in any graph (audio, video, tinkerforge, etc.).
-
-* `routing-every.pxg` - Allow every n-th signal through.
-* `routing-order.pxg` - Help order signals through connections - input send to all `out-1` connections before `out-2` connections.
-* `seconds.pxg` - Output running time in seconds.
-* `tracker.pxg` - 4-channel tracker sequencing component (UI editing currently limited - see *jazzy synthesis* example for usage)
-
 ### Video
 
 Components that can be used in any video graph.
 
 * `colourbalance.pxg` - alter the rgb balance of a video input.
 * `xform.pxg` - 2D transform (translate, scale, rotate) a video input.
+* `framerate.pxg` (EXPERIMENTAL) - measure framerate of video passing through component.
 
 ### VideoGL
 
@@ -44,6 +47,13 @@ Video components that can only be used with the OpenGL renderer.
 * `fx-pinch.pxg` - pinch image effect.
 * `gl-filter-base.pxg` - GLSL filter base - add to graph and edit fragment (GLSL) and code (Java).
 * `xform-3d.pxg` - translate and rotate a video input in 3D space.
+* `glsl-io-transitions.pxg` (EXPERIMENTAL) - range of video transition effects between two sources, ported from GLSL.io
+
+### TinkerForge
+
+TinkerForge binding components.
+
+* `rotary-encoder.pxg` (EXPERIMENTAL) - binding for the rotary encoder bricklet.
 
 ## Create your own SubGraph (.pxg) file
 

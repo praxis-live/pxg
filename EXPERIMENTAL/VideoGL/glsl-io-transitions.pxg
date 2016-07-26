@@ -1,0 +1,335 @@
+@ ./transitions video:gl:p2d {
+  #%graph.x 0
+  #%graph.y 0
+  #%graph.colors Purple
+  #%graph.comment Video transitions ported from GLSL.io
+  .code "
+
+    final String CROSSFADE = \"CrossFade\";
+    final String WARPFADE = \"WarpFade\";
+    final String COLOURDISTANCE = \"ColourDistance\";
+    final String MORPH = \"Morph\";
+    final String FLYEYE = \"FlyEye\";
+    final String CROSSZOOM = \"CrossZoom\";
+    final String CUBE = \"Cube\";
+    final String VERTEX = \"uniform mat4 transformMatrix;\\n\"
+            + \"attribute vec4 position;\\n\"
+            + \"attribute vec2 texCoord;\\n\"
+            + \"varying vec4 vertTexCoord;\\n\"
+            + \"void main() \{\\n\"
+            + \"  vertTexCoord = vec4(texCoord, 1.0, 1.0);\\n\"
+            + \"  gl_Position = transformMatrix * position;\\n\"
+            + \"\}\";
+
+    @In(1)
+    PImage in1;
+    @In(2)
+    PImage in2;
+    @P(1)
+    @Type.String(mime = GLSL_FRAGMENT_MIME, template = DEFAULT_FRAGMENT_SHADER)
+    @OnChange(\"updateShader\")
+    @Port(false)
+    String fragment;
+
+    @P(2)
+    @Type.String(allowed = \{CROSSFADE, WARPFADE, COLOURDISTANCE, MORPH, FLYEYE, CROSSZOOM, CUBE\})
+    String type;
+    @P(3)
+    @Type.Number(min = 0, max = 1, def = 1)
+    double mix;
+
+    PShader shader;
+
+    @Override
+    public void setup() \{
+        updateShader();
+    \}
+
+    @Override
+    public void draw() \{
+        if (mix < 0.001) \{
+            image(in1, 0, 0);
+        \} else if (mix > 0.999) \{
+            image(in2, 0, 0);
+        \} else \{
+            if (shader == null) \{
+                shader = createShader(
+                        VERTEX,
+                        fragment.isEmpty() ? DEFAULT_FRAGMENT_SHADER : fragment);
+            \}
+            shader(shader);
+            updateUniforms();
+            noStroke();
+            beginShape(QUADS);
+            vertex(0, 0, 0, 0);
+            vertex(width, 0, 1, 0);
+            vertex(width, height, 1, 1);
+            vertex(0, height, 0, 1);
+            endShape();
+            resetShader();
+        \}
+
+    \}
+
+    void updateUniforms() \{
+        shader.set(\"from\", in1);
+        shader.set(\"to\", in2);
+        shader.set(\"progress\", mix);
+        switch (type) \{
+            case WARPFADE:
+                shader.set(\"type\", 1);
+                break;
+            case CUBE:
+                shader.set(\"type\", 2);
+                break;
+            case COLOURDISTANCE:
+                shader.set(\"type\", 3);
+                break;
+            case MORPH:
+                shader.set(\"type\", 4);
+                break;
+            case FLYEYE:
+                shader.set(\"type\", 5);
+                break;
+            case CROSSZOOM:
+                shader.set(\"type\", 6);
+                break;
+            default:
+                shader.set(\"type\", 0);
+
+        \}
+    \}
+
+    void updateShader() \{
+        shader = null;
+    \}
+"
+  .fragment "uniform sampler2D from;
+uniform sampler2D to;
+uniform mat4 fromMatrix;
+uniform mat4 toMatrix;
+
+uniform float progress;
+uniform int type;
+
+varying vec4 vertTexCoord;
+
+const float PI = 3.141592653589793;
+
+// UTILS
+vec2 mul(vec2 pos, mat4 mat) \{
+    return (mat * vec4(pos, 1.0, 1.0)).xy;
+\}
+
+vec4 textureFrom(vec2 pos) \{
+    return texture2D(from, mul(pos, fromMatrix));
+\}
+
+vec4 textureTo(vec2 pos) \{
+    return texture2D(to, mul(pos, toMatrix));
+\}
+
+// WarpFade
+vec4 warpFade() \{
+    float x = progress;
+    vec2 p = vertTexCoord.xy;
+    x=smoothstep(.0,1.0,(x*2.0+p.x-1.0));
+    return mix(textureFrom((p-.5)*(1.-x)+.5),
+        textureTo((p-.5)*x+.5),
+        progress);
+\}
+
+// ColourDistance
+vec4 colourDistance() \{
+    vec2 p = vertTexCoord.xy;
+    vec4 fTex = textureFrom(p);
+    vec4 tTex = textureTo(p);
+    return mix(distance(fTex,tTex) > progress ? fTex : tTex,
+        tTex,
+        pow(progress,5.0));
+\}
+
+// Morph
+vec4 morph() \{
+    vec2 p = vertTexCoord.xy;
+    vec4 ca = texture2D(from, (fromMatrix * vertTexCoord).xy);
+    vec4 cb = texture2D(to, (toMatrix * vertTexCoord).xy);
+    vec2 oa = (((ca.rg+ca.b)*0.5)*2.0-1.0);
+    vec2 ob = (((cb.rg+cb.b)*0.5)*2.0-1.0);
+    vec2 oc = mix(oa,ob,0.5)*0.1;
+
+    float w0 = progress;
+    float w1 = 1.0 - w0;
+
+    return mix(textureFrom(p+oc*w0), textureTo(p-oc*w1), progress);
+\}
+
+// FlyEye
+vec4 flyeye() \{
+    float size = 0.04;
+    float zoom = 30;
+    float colorSeparation = 0.3;
+    vec2 p = vertTexCoord.xy;
+    float inv = 1. - progress;
+    vec2 disp = size*vec2(cos(zoom*p.x), sin(zoom*p.y));
+    vec4 texTo = textureTo(p + inv*disp);
+    vec4 texFrom = vec4(
+        textureFrom(p + progress*disp*(1.0 - colorSeparation)).r,
+        textureFrom(p + progress*disp).g,
+        textureFrom(p + progress*disp*(1.0 + colorSeparation)).b,
+        textureFrom(p).a);
+    return texTo*progress + texFrom*inv;
+\}
+
+// CrossZoom
+float Linear_ease(in float begin, in float change, in float duration, in float time) \{
+    return change * time / duration + begin;
+\}
+
+float Exponential_easeInOut(in float begin, in float change, in float duration, in float time) \{
+    if (time == 0.0)
+        return begin;
+    else if (time == duration)
+        return begin + change;
+    time = time / (duration / 2.0);
+    if (time < 1.0)
+        return change / 2.0 * pow(2.0, 10.0 * (time - 1.0)) + begin;
+    return change / 2.0 * (-pow(2.0, -10.0 * (time - 1.0)) + 2.0) + begin;
+\}
+
+float Sinusoidal_easeInOut(in float begin, in float change, in float duration, in float time) \{
+    return -change / 2.0 * (cos(PI * time / duration) - 1.0) + begin;
+\}
+
+/* random number between 0 and 1 */
+float random(in vec3 scale, in float seed) \{
+    /* use the fragment position for randomness */
+    return fract(sin(dot(gl_FragCoord.xyz + seed, scale)) * 43758.5453 + seed);
+\}
+
+vec4 crossFade(in vec2 uv, in float dissolve) \{
+    return mix(textureFrom(uv), textureTo(uv), dissolve);
+\}
+
+vec4 crossZoom() \{
+    vec2 texCoord = vertTexCoord.xy;
+    float strength = 0.4;
+
+    // Linear interpolate center across center half of the image
+    vec2 center = vec2(Linear_ease(0.25, 0.5, 1.0, progress), 0.5);
+    float dissolve = Exponential_easeInOut(0.0, 1.0, 1.0, progress);
+
+    // Mirrored sinusoidal loop. 0->strength then strength->0
+    strength = Sinusoidal_easeInOut(0.0, strength, 0.5, progress);
+
+    vec4 color = vec4(0.0);
+    float total = 0.0;
+    vec2 toCenter = center - texCoord;
+
+    /* randomize the lookup values to hide the fixed number of samples */
+    float offset = random(vec3(12.9898, 78.233, 151.7182), 0.0);
+
+    for (float t = 0.0; t <= 40.0; t++) \{
+        float percent = (t + offset) / 40.0;
+        float weight = 4.0 * (percent - percent * percent);
+        color += crossFade(texCoord + toCenter * percent * strength, dissolve) * weight;
+        total += weight;
+    \}
+    return color / total;
+\}
+
+
+// Cube
+vec2 project (vec2 p) \{
+  float floating = 3;
+  return p * vec2(1.0, -1.2) + vec2(0.0, -floating/100.);
+\}
+
+bool inBounds (vec2 p) \{
+  return all(lessThan(vec2(0.0), p)) && all(lessThan(p, vec2(1.0)));
+\}
+
+vec4 bgColor (vec2 p, vec2 pfr, vec2 pto) \{
+  float reflection = 0.4;
+  vec4 c = vec4(0.0, 0.0, 0.0, 0.0);
+  pfr = project(pfr);
+  if (inBounds(pfr)) \{
+    c += mix(vec4(0.0), texture2D(from, pfr), reflection * mix(1.0, 0.0, pfr.y));
+  \}
+  pto = project(pto);
+  if (inBounds(pto)) \{
+    c += mix(vec4(0.0), texture2D(to, pto), reflection * mix(1.0, 0.0, pto.y));
+  \}
+  return c;
+\}
+
+vec2 xskew (vec2 p, float persp, float center) \{
+  float x = mix(p.x, 1.0-p.x, center);
+  return (
+    (
+      vec2( x, (p.y - 0.5*(1.0-persp) * x) / (1.0+(persp-1.0)*x) )
+      - vec2(0.5-distance(center, 0.5), 0.0)
+    )
+    * vec2(0.5 / distance(center, 0.5) * (center<0.5 ? 1.0 : -1.0), 1.0)
+    + vec2(center<0.5 ? 0.0 : 1.0, 0.0)
+  );
+\}
+
+vec4 cube() \{
+    float persp = 0.7;
+    float unzoom = 0.3;
+  vec2 op = vertTexCoord.xy;
+  float uz = unzoom * 2.0*(0.5-distance(0.5, progress));
+  vec2 p = -uz*0.5+(1.0+uz) * op;
+  vec2 fromP = xskew(
+    (p - vec2(progress, 0.0)) / vec2(1.0-progress, 1.0),
+    1.0-mix(progress, 0.0, persp),
+    0.0 
+  );
+  fromP = (fromMatrix * vec4(fromP,1.0,1.0)).xy;
+  vec2 toP = xskew(
+    p / vec2(progress, 1.0),
+    mix(pow(progress, 2.0), 1.0, persp),
+    1.0
+  );
+  toP = (toMatrix * vec4(toP,1.0,1.0)).xy;
+  if (inBounds(fromP)) \{
+    return texture2D(from, fromP);
+  \}
+  else if (inBounds(toP)) \{
+    return texture2D(to, toP);
+  \}
+  else \{
+    return bgColor(op, fromP, toP);
+  \}
+\}
+
+void main() \{
+    vec4 color;
+    if (type == 1) \{
+        color = warpFade();
+    \} else if (type == 2) \{
+        color = cube();
+    \} else if (type == 3) \{
+        color = colourDistance();
+    \} else if (type == 4) \{
+        color = morph();
+    \} else if (type == 5) \{
+        color = flyeye();
+    \} else if (type == 6) \{
+        color = crossZoom();
+    \} else \{
+        vec2 p = vertTexCoord.xy;
+        color = mix(textureFrom(p),
+            textureTo(p),
+            progress);
+    \} 
+
+    gl_FragColor = color; 
+\}
+
+
+"
+  .mix 0.0
+}
+
