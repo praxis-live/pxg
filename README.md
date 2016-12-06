@@ -59,6 +59,6 @@ TinkerForge binding components.
 
 ## Create your own SubGraph (.pxg) file
 
-There is not currently a way to export SubGraph files, however they are easy to create. Simply select the component(s) you wish to reuse within the patcher window. Open your favourite text editor, and copy & paste the selected components from Praxis LIVE into the editor. Save the resulting text file with a .pxg extension. You can then drag this file from the File Manager into the patcher window.
+Simply select the component(s) you wish to reuse within the patcher window, right-click and select `Export` to save a PXG file. You can then drag this file from the File Manager into the patcher window, or import into the palette.
 
 Please share!
