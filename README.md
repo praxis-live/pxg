@@ -48,6 +48,8 @@ Video components that can only be used with the OpenGL renderer.
 * `gl-filter-base.pxg` - GLSL filter base - add to graph and edit fragment (GLSL) and code (Java).
 * `xform-3d.pxg` - translate and rotate a video input in 3D space.
 * `glsl-io-transitions.pxg` (EXPERIMENTAL) - range of video transition effects between two sources, ported from GLSL.io
+* `isf-edges.pxg` (EXPERIMENTAL) - Edges video filter ported from https://www.interactiveshaderformat.com/sketches/184
+* `isf-solarize.pxg` (EXPERIMENTAL) - Solarize video filter ported from https://www.interactiveshaderformat.com/sketches/390
 
 ### TinkerForge
 
