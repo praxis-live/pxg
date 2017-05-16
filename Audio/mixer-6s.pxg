@@ -1,0 +1,80 @@
+@ ./mixer-6s audio:custom {
+  #%graph.x 0
+  #%graph.y 0
+  .code "
+
+    @In(1) AudioIn in1l;
+    @In(2) AudioIn in1r;
+    @In(3) AudioIn in2l;
+    @In(4) AudioIn in2r;
+    @In(5) AudioIn in3l;
+    @In(6) AudioIn in3r;
+    @In(7) AudioIn in4l;
+    @In(8) AudioIn in4r;
+    @In(9) AudioIn in5l;
+    @In(10) AudioIn in5r;
+    @In(11) AudioIn in6l;
+    @In(12) AudioIn in6r;
+    
+    @Out(1) AudioOut out1;
+    @Out(2) AudioOut out2;
+    
+    @P(1) @Type.Number(min=0, max=2, skew=4) double level1;
+    @P(2) @Type.Number(min=0, max=2, skew=4) double level2;
+    @P(3) @Type.Number(min=0, max=2, skew=4) double level3;
+    @P(4) @Type.Number(min=0, max=2, skew=4) double level4;
+    @P(5) @Type.Number(min=0, max=2, skew=4) double level5;
+    @P(6) @Type.Number(min=0, max=2, skew=4) double level6;
+    
+    @P(7) boolean mute1;
+    @P(8) boolean mute2;
+    @P(9) boolean mute3;
+    @P(10) boolean mute4;
+    @P(11) boolean mute5;
+    @P(12) boolean mute6;
+    
+    @UGen Gain g1l,g1r,g2l,g2r,g3l,g3r,g4l,g4r,g5l,g5r,g6l,g6r;
+    
+    @Override
+    public void setup() \{
+        link(
+            add(
+                link(in1l, g1l),
+                link(in2l, g2l),
+                link(in3l, g3l),
+                link(in4l, g4l),
+                link(in5l, g5l),
+                link(in6l, g6l)
+            ),
+            out1
+        );
+        link(
+            add(
+                link(in1r, g1r),
+                link(in2r, g2r),
+                link(in3r, g3r),
+                link(in4r, g4r),
+                link(in5r, g5r),
+                link(in6r, g6r)
+            ),
+            out2
+        );
+    \}
+
+    @Override
+    public void update() \{
+        g1l.level(mute1 ? 0 : level1);
+        g1r.level(mute1 ? 0 : level1);
+        g2l.level(mute2 ? 0 : level2);
+        g2r.level(mute2 ? 0 : level2);
+        g3l.level(mute3 ? 0 : level3);
+        g3r.level(mute3 ? 0 : level3);
+        g4l.level(mute4 ? 0 : level4);
+        g4r.level(mute4 ? 0 : level4);
+        g5l.level(mute5 ? 0 : level5);
+        g5r.level(mute5 ? 0 : level5);
+        g6l.level(mute6 ? 0 : level6);
+        g6r.level(mute6 ? 0 : level6);
+    \}
+"
+}

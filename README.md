@@ -22,6 +22,7 @@ Components that can be used in any graph (audio, video, tinkerforge, etc.).
 
 Components that can be used in any audio graph.
 
+* `mixer-6s.pxg` - stereo 6-channel mixer.
 * `mono-kit.pxg` - simple 6-sample player with triggers and levels. Useful for drum samples.
 * `synth-base.pxg` - basis for a monophonic synthesizer.
 * `synth-duo-osc.pxg` - monophonic analog style synthesizer with two oscillators and resonant filter with envelope modulation.
@@ -40,6 +41,7 @@ Components that can be used in any video graph.
 Video components that can only be used with the OpenGL renderer.
 
 * `fx-kaleidoscope.pxg` - kaleidoscope effect with controllable number of segments. GLSL code derived from https://github.com/neilmendoza/ofxPostProcessing/blob/master/src/KaleidoscopePass.cpp
+* `fx-noise-warp.pxg` - noise warp image effect. GLSL code derived from https://github.com/ashima/webgl-noise
 * `fx-pinch.pxg` - pinch image effect.
 * `gl-filter-base.pxg` - GLSL filter base - add to graph and edit fragment (GLSL) and code (Java).
 * `xform-3d.pxg` - translate and rotate a video input in 3D space.
