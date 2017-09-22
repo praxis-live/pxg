@@ -1,4 +1,4 @@
-@ ./pm3-synth audio:custom {
+@ ./pm-synth audio:custom {
   #%graph.x 0
   #%graph.y 0
   .code "
@@ -40,10 +40,10 @@
     public void setup() \{
         car.waveform(SAW);
         frequency.link(car::frequency);
-        ampEnv.link(d -> amp.level(d*d));
+        ampEnv.link(d -> amp.level( (d * d) * level) );
         lfoFrequency.link(lfo::frequency);
         lfoLevel.link(lfo::gain);
-        link(car, modFn(add(mod, lfo), (m,c) -> sin((m+c) * TWO_PI)), amp, out);
+        link(car, modFn(add(mod, lfo), (m,c) -> sin( (m + c) * TWO_PI )), amp, out);
     \}
 
     @Override
