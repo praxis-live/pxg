@@ -1,0 +1,83 @@
+@ ./gl-source video:gl:p2d {
+  #%graph.x 0
+  #%graph.y 0
+  .code "
+
+    @P(1)
+    @Type.Number(min = 0, max = 1, def = 0.5)
+    double x;
+    @P(2)
+    @Type.Number(min = 0, max = 1, def = 0.5)
+    double y;
+    @P(3)
+    @Port(false)
+    boolean mouseInput;
+
+    void updateUniforms() \{
+        shader.set(\"time\", millis() / 1000.0);
+        if (mouseInput) \{
+            x = (double) mouseX / width;
+            y = 1.0 - ((double) mouseY / height);
+        \}
+        shader.set(\"mouse\", x, y);
+    \}
+
+    // BOILERPLATE BELOW
+    @P(0)
+    @Type.String(mime = GLSL_FRAGMENT_MIME, template = DEF_FRAG)
+    @OnChange(\"updateShader\")
+    @Port(false)
+    String fragment;
+
+    PShader shader, oldShader;
+
+    final String DEF_FRAG
+            = \"uniform float time;\\n\"
+            + \"uniform vec2 mouse;\\n\"
+            + \"uniform vec2 resolution;\\n\"
+            + \"\\n\"
+            + \"void main() \{\\n\"
+            + \"    // fragment position\\n\"
+            + \"    vec2 pos = gl_FragCoord.xy/resolution.xy;\\n\"
+            + \"    vec2 dist = mouse - pos;\\n\"
+            + \"    vec3 white = vec3(1.0 - length(dist));\\n\"
+            + \"    gl_FragColor = vec4(white, 1.0);\\n\"
+            + \"\}\";
+
+    @Override
+    public void setup() \{
+        updateShader();
+        noStroke();
+    \}
+
+    @Override
+    public void draw() \{
+        if (shader == null) \{
+            try \{
+                shader = createShader(DEFAULT_VERTEX_SHADER,
+                    fragment.isEmpty() ? DEF_FRAG : fragment);
+                shader(shader);
+            \} catch(Exception ex) \{
+                log(ERROR, ex);
+                shader = oldShader;
+                if (shader != null) \{
+                    shader(shader); 
+                \} else \{
+                    return;
+                \}
+            \}
+        \} else \{
+            shader(shader);
+        \}
+        updateUniforms();
+        rect(0, 0, width, height);
+        resetShader();
+    \}
+
+    void updateShader() \{
+        oldShader = shader;
+        shader = null;
+    \}
+
+"
+}

@@ -43,17 +43,21 @@ Video components that can only be used with the OpenGL renderer.
 * `fx-kaleidoscope.pxg` - kaleidoscope effect with controllable number of segments. GLSL code derived from https://github.com/neilmendoza/ofxPostProcessing/blob/master/src/KaleidoscopePass.cpp
 * `fx-noise-warp.pxg` - noise warp image effect. GLSL code derived from https://github.com/ashima/webgl-noise
 * `fx-pinch.pxg` - pinch image effect.
-* `gl-filter-base.pxg` - GLSL filter base - add to graph and edit fragment (GLSL) and code (Java).
-* `xform-3d.pxg` - translate and rotate a video input in 3D space.
+* `gl-filter-base.pxg` - GLSL filter base - add to graph and edit fragment (GLSL) and code (Java/Processing).
+* `gl-gradients.pxg` - simple mouse reactive OpenGL source example. GLSL code from http://weworkweplay.com/play/introduction-to-glsl-and-fragment-pixel-shaders/
 * `glsl-io-transitions.pxg` (experimental) - range of video transition effects between two sources, ported from GLSL.io
-* `isf-edges.pxg` (experimental) - Edges video filter ported from https://www.interactiveshaderformat.com/sketches/184
-* `isf-solarize.pxg` (experimental) - Solarize video filter ported from https://www.interactiveshaderformat.com/sketches/390
+* `gl-source.pxg` - GLSL source base = add to graph and edit fragment (GLSL) and code (Java/Processing). Supports most shaders from GLSL Sandbox directly.
+* `gl-svg.pxg` - SVG viewer (and example of SVG loading).
+* `gl-text.pxg` - text component (and example of text rendering). **Requires a .ttf font file to be set.**
+* `isf-edges.pxg` edges video filter ported from https://www.interactiveshaderformat.com/sketches/184
+* `isf-solarize.pxg` - solarize video filter ported from https://www.interactiveshaderformat.com/sketches/390
+* `xform-3d.pxg` - translate and rotate a video input in 3D space.
 
 ### TinkerForge
 
 TinkerForge binding components.
 
-* `rotary-encoder.pxg` (experimental) - binding for the rotary encoder bricklet.
+* `rotary-encoder.pxg` - binding for the rotary encoder bricklet.
 
 ## Create your own SubGraph (.pxg) file
 

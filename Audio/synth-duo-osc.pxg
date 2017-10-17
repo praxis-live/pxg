@@ -12,20 +12,20 @@
     @UGen IIRFilter filter;
     @UGen Gain amp;
     
-    @P(1) @Type.String(allowed = \{SW, SQ\}) @OnChange(\"updateWaves\") @Port(false)
-    String waveform1;
-    @P(2) @Type.String(allowed = \{SW, SQ\}) @OnChange(\"updateWaves\") @Port(false)
-    String waveform2;
+    @P(1) @Type.String(allowed = \{SW, SQ\})
+    Property waveform1;
+    @P(2) @Type.String(allowed = \{SW, SQ\})
+    Property waveform2;
     @P(3) @Type.Number(min=0, max=1, def=1)
     double level;
-    @P(4) @Type.Number(min=0, max=1, def=0) @Port(false)
-    double osc2Level;
-    @P(5) @Type.Integer(min=-24, max=24, def=-12) @Port(false)
+    @P(4) @Type.Number(min=0, max=1, def=0) 
+    Property osc2Level;
+    @P(5) @Type.Integer(min=-24, max=24, def=-12) 
     int osc2Transpose;
     @P(6) @Type.Number(min=110, max=8000, def=8000)
     double cutoff;
     @P(7) @Type.Number(min=0, max=20)
-    double resonance;
+    Property resonance;
     @P(8) @Type.Number(min=0, max=2)
     double attack;
     @P(9) @Type.Number(min=0, max=2, def=2)
@@ -34,36 +34,39 @@
     double sustain;
     @P(11) @Type.Number(min=0, max=2, def=0)
     double release;
-    @P(12) @Type.Number(min=0, max=1) @Port(false)
+    @P(12) @Type.Number(min=0, max=1) 
     double filterMod;
-    @P(13) @Type.Number(min=0, max=1, def=1) @Port(false)
+    @P(13) @Type.Number(min=0, max=1, def=1) 
     double ampMod;
 
     @Inject Property freq1, freq2, env;
     
     @Override
     public void setup() \{
-        updateWaves();
-        filter.type(IIRFilter.LP12);
-        link(add(osc, osc2), filter, amp, out);
+        link(add(osc, osc2), filter.type(IIRFilter.LP12), amp, out);
+        
+        waveform1.valuesAs(Value::toString).map(w -> Waveform.valueOf(w)).link(osc::waveform);
+        waveform2.valuesAs(Value::toString).map(w -> Waveform.valueOf(w)).link(osc2::waveform);
+        freq1.link(osc::frequency);
+        freq2.link(osc2::frequency);
+        osc2Level.values().map(d -> d*d).link(osc2::gain);
+        resonance.link(filter::resonance);
+        
+        env.values().map(e -> \{
+            double hz = d(freq1);
+            hz = (e * hz * 7) + hz;
+            return (filterMod * hz) + ((1 - filterMod) * cutoff);
+        \}).link(filter::frequency);
+        
+        env.values().map(e -> \{
+            e = e < 0.001 ? 0 : (ampMod * e * e) + (1 - ampMod);
+            return e * level * level;
+        \}).link(amp::level);
+        
     \}
-
-    @Override
-    public void update() \{
-        double hz = d(freq1);
-        osc.frequency(hz);
-        osc2.frequency(d(freq2)).gain(osc2Level * osc2Level);
-        double e = d(env);
-        hz = (e * hz * 7) + hz;
-        hz = (filterMod * hz) + ((1 - filterMod) * cutoff);
-        filter.frequency(hz).resonance(resonance);
-        e = e < 0.001 ? 0 : (ampMod * e * e) + (1 - ampMod);
-        e = e * level * level;
-        amp.level(e);
-    \} 
     
     @In(1) void note(String note) \{
-        if (\"-\".equals(note)) \{
+        if (note.isEmpty() || \"-\".equals(note)) \{
             return;
         \}
         int midi = noteToMidi(note);
@@ -84,11 +87,6 @@
     
     void noteOff() \{
         env.to(0).in(release);
-    \}
-    
-    void updateWaves() \{
-        osc.waveform(SQ.equals(waveform1) ? SQUARE : SAW);
-        osc2.waveform(SQ.equals(waveform2) ? SQUARE : SAW);
     \}
     
 "

@@ -19,18 +19,25 @@
     @P(6) @OnChange(\"updateTables\") @Port(false)
     Table sample6;
 
-    @P(7) @Type.Number(min=0, max=1, def=1) @OnChange(\"updateLevels\")
-    double level1;
-    @P(8) @Type.Number(min=0, max=1, def=1) @OnChange(\"updateLevels\")
-    double level2;
-    @P(9) @Type.Number(min=0, max=1, def=1) @OnChange(\"updateLevels\")
-    double level3;
-    @P(10) @Type.Number(min=0, max=1, def=1) @OnChange(\"updateLevels\")
-    double level4;
-    @P(11) @Type.Number(min=0, max=1, def=1) @OnChange(\"updateLevels\")
-    double level5;
-    @P(12) @Type.Number(min=0, max=1, def=1) @OnChange(\"updateLevels\")
-    double level6;
+    @T(1) Trigger play1;
+    @T(2) Trigger play2;
+    @T(3) Trigger play3;
+    @T(4) Trigger play4;
+    @T(5) Trigger play5;
+    @T(6) Trigger play6;
+    
+    @P(7) @Type.Number(min=0, max=1, def=1)
+    Property level1;
+    @P(8) @Type.Number(min=0, max=1, def=1)
+    Property level2;
+    @P(9) @Type.Number(min=0, max=1, def=1)
+    Property level3;
+    @P(10) @Type.Number(min=0, max=1, def=1)
+    Property level4;
+    @P(11) @Type.Number(min=0, max=1, def=1)
+    Property level5;
+    @P(12) @Type.Number(min=0, max=1, def=1)
+    Property level6;
     
     @UGen
     Player pl1, pl2, pl3, pl4, pl5, pl6;
@@ -40,7 +47,6 @@
     @Override
     public void setup() \{
         updateTables();
-        updateLevels();
         link(
                 add(
                         link(pl1, g1),
@@ -52,6 +58,20 @@
                 ),
                 out     
         );
+        
+        play1.link(pl1::play);
+        play2.link(pl2::play);
+        play3.link(pl3::play);
+        play4.link(pl4::play);
+        play5.link(pl5::play);
+        play6.link(pl6::play);
+        
+        level1.values().map(l -> l*l).link(g1::level);
+        level2.values().map(l -> l*l).link(g2::level);
+        level3.values().map(l -> l*l).link(g3::level);
+        level4.values().map(l -> l*l).link(g4::level);
+        level5.values().map(l -> l*l).link(g5::level);
+        level6.values().map(l -> l*l).link(g6::level);
     \}
     
     void updateTables() \{
@@ -61,39 +81,6 @@
         pl4.table(sample4);
         pl5.table(sample5);
         pl6.table(sample6);
-    \}
-    
-    void updateLevels() \{
-        g1.level(level1 * level1);
-        g2.level(level2 * level2);
-        g3.level(level3 * level3);
-        g4.level(level4 * level4);
-        g5.level(level5 * level5);
-        g6.level(level6 * level6);
-    \}
-    
-    @T(1) void play1() \{
-        pl1.play();
-    \}
-    
-    @T(2) void play2() \{
-        pl2.play();
-    \}
-    
-    @T(3) void play3() \{
-        pl3.play();
-    \}
-    
-    @T(4) void play4() \{
-        pl4.play();
-    \}
-    
-    @T(5) void play5() \{
-        pl5.play();
-    \}
-    
-    @T(6) void play6() \{
-        pl6.play();
     \}
     
 "

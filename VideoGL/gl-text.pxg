@@ -1,0 +1,26 @@
+@ ./gl-text video:gl:p2d {
+  #%graph.x 0
+  #%graph.y 0
+  .code "
+
+    @P(1) @Port(false) PFont font;
+    @P(2) String text;
+    @P(3) @Port(false) @Type.Integer(min=1,max=256,def=14) int fontSize;
+    @P(4) @Type.Number(min=0, max=1, def=0.5) double alignX;
+    @P(5) @Type.Number(min=0, max=1, def=0.5) double alignY;
+    @P(6) @Type.Number(min=0, max=1, def=1) double r;
+    @P(7) @Type.Number(min=0, max=1, def=1) double g;
+    @P(8) @Type.Number(min=0, max=1, def=1) double b;
+    
+    @Override
+    public void draw() \{
+        if (font == null || text.isEmpty()) \{
+            return;
+        \}
+        textFont(font, fontSize);
+        fill(r*255, g*255, b*255);
+        double textHeight = textAscent() + textDescent();
+        text(text, width*alignX - textWidth(text)*alignX, alignY*(height-textHeight) + textAscent());
+    \}
+"
+}

@@ -2,35 +2,28 @@
   #%graph.x 0
   #%graph.y 0
   .code "
-    
+
     @Out(1) AudioOut out;
     
     @UGen Osc osc;
     @UGen Gain amp;
     
-    @P(1) @Type.Number(min=0, max=1, def=1)
+    @P(1) @Type.Number(min=0, max=1, def=1, skew=4)
     double gain;
 
-    @Inject double frequency;
+    @Inject Property frequency;
     @Inject Property envelope;
     
     @Override
     public void setup() \{
         osc.waveform(SINE);
         link(osc, amp, out);
+        frequency.link(osc::frequency);
+        envelope.values().map(e -> e * e * gain).link(amp::level);
     \}
 
-    @Override
-    public void update() \{
-        osc.frequency(frequency);
-        double e = d(envelope);
-        e = e * e;
-        e *= gain;
-        amp.level(e);
-    \} 
-    
     @In(1) void note(String note) \{
-        if (\"-\".equals(note)) \{
+        if (note.isEmpty() || \"-\".equals(note)) \{
             return;
         \}
         int midi = noteToMidi(note);
@@ -42,7 +35,7 @@
     \}
     
     void noteOn(int midi) \{
-        frequency = midiToFrequency(midi);
+        frequency.set(midiToFrequency(midi));
         envelope.to(1).in(0.05);
     \}
     
