@@ -1,0 +1,172 @@
+@ ./taptempo core:custom {
+  #%graph.x 0
+  #%graph.y 0
+  #%graph.colors Orange
+  #%graph.comment Tap tempo component\ntrig : trigger on the beat\nunit : provides a unit interval\npare with tapdiv to slow down unit over \nmultiple beats, ie 4 beats
+  .code "
+
+    @P(1) @Type.Number(min = 0.001, max = 60, def = 1)
+    double period;
+
+    @P(2) @Type.Number @ReadOnly
+    Property time;
+
+    @P(3) @Type.Boolean() boolean playing = true;
+
+    @Out(1) Output trig;
+    @Out(2) Output unit;
+
+    @Inject Property chrono;
+
+    final int ARRAY_SIZE = 5;
+    double\[\] timeArray = new double\[ARRAY_SIZE\];
+
+    @Override
+    public void update() \{
+        if (!time.isAnimating() && playing) \{
+            time.set(0).to(1).in(period);
+            trig.send(1.0);
+        \}
+        unit.send(d(time));
+    \}
+
+    @T(0) void tap()\{
+        if(d(chrono) < 12)\{
+            for(int i = ARRAY_SIZE-1; i > 0; i--)\{
+                timeArray\[i\] = timeArray\[i-1\];
+            \}
+            timeArray\[0\] = d(chrono);
+            double _sum = 0;
+            for(int i = 0; i < ARRAY_SIZE; i++)\{
+                _sum += timeArray\[i\];
+            \}
+            period = (_sum/ARRAY_SIZE);
+            time.animator().in(period);
+        \}
+        chrono.set(0).to(1000).in(1000);
+    \}
+    
+    @T(1) void trigger()\{
+        time.set(0).to(1).in(period);
+        trig.send(1.0);
+    \}
+"
+  .period 1.0382595552
+  .playing true
+}
+@ ./tapdiv core:custom {
+  #%graph.x 241
+  #%graph.y 91
+  #%graph.colors Orange
+  .code "
+
+    @P(1) @Type.Number(min = 0.00001, max = 60, def = 1)
+    double divider;
+
+    double out = 0;
+    double previousOut = 0;
+
+    double previous = 0;
+    double tracker = 0;
+
+    @Out(1) Output trig;
+    @Out(2) Output unit;
+
+
+    @In(1) void unitin(double ui)\{
+        if(ui < previous) tracker++;
+        previous = ui;
+        out = ((tracker+ui)/divider) - (int)((tracker+ui)/divider);
+        unit.send(out);
+        if(previousOut > out) trig.send(1);
+        previousOut = out;
+    \}
+
+"
+  .divider 4
+}
+@ ./output-1 video:output {
+  #%graph.x 700
+  #%graph.y 59
+}
+@ ./tapDemoP3D video:gl:p3d {
+  #%graph.x 416
+  #%graph.y 107
+  .code "
+
+    @P(1) @Type.Number() 
+    double unit;
+    
+    int trigger = 0;
+    
+    @Override
+    public void setup() \{
+        strokeWeight(3);
+        fill(255,0,0);
+    \}
+
+    @Override
+    public void draw() \{
+        background(0, 0);
+        if(trigger > 0)\{
+            noStroke();
+            rect(0, height/2, width, height/2);
+            trigger--;
+        \}
+        stroke(255);
+        line(unit*width, height/2, unit*width, height);
+    \}
+    
+    @T(1) 
+    void trig()\{
+        // 4 frames
+        trigger = 4;
+    \}
+    
+"
+  .unit 0.43466169232604557
+}
+@ ./tapDemoP3D1 video:gl:p3d {
+  #%graph.x 408
+  #%graph.y 0
+  .code "
+
+    @P(1) @Type.Number() 
+    double unit;
+    
+    int trigger = 0;
+    
+    @Override
+    public void setup() \{
+        strokeWeight(3);
+        fill(255,0,0);
+    \}
+
+    @Override
+    public void draw() \{
+        background(0, 0);
+        if(trigger > 0)\{
+            noStroke();
+            rect(0, 0, width, height/2);
+            trigger--;
+        \}
+        stroke(255);
+        line(unit*width, 0, unit*width, height/2);
+    \}
+    
+    @T(1) 
+    void trig()\{
+        // 4 frames
+        trigger = 4;
+    \}
+    
+"
+  .unit 0.7386467693042325
+}
+~ ./taptempo!unit ./tapdiv!unitin
+~ ./tapdiv!unit ./tapDemoP3D!unit
+~ ./tapdiv!trig ./tapDemoP3D!trig
+~ ./tapDemoP3D!out ./output-1!in
+~ ./taptempo!trig ./tapDemoP3D1!trig
+~ ./taptempo!unit ./tapDemoP3D1!unit
+~ ./tapDemoP3D1!out ./output-1!in
