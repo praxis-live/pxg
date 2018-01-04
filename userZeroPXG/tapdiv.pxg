@@ -1,0 +1,31 @@
+@ ./tapdiv core:custom {
+  #%graph.x 0
+  #%graph.y 0
+  #%graph.colors Orange
+  .code "
+
+    @P(1) @Type.Number(min = 0.00001, max = 60, def = 1)
+    double divider;
+
+    double out = 0;
+    double previousOut = 0;
+
+    double previous = 0;
+    double tracker = 0;
+
+    @Out(1) Output trig;
+    @Out(2) Output unit;
+
+
+    @In(1) void unitin(double ui)\{
+        if(ui < previous) tracker++;
+        previous = ui;
+        out = ((tracker+ui)/divider) - (int)((tracker+ui)/divider);
+        unit.send(out);
+        if(previousOut > out) trig.send(1);
+        previousOut = out;
+    \}
+
+"
+  .divider 4
+}
