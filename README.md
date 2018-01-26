@@ -40,6 +40,8 @@ Components that can be used in any video graph.
 
 Video components that can only be used with the OpenGL renderer.
 
+* `fx-blur.pxg` - multi-pass blur effect. Adapted from Processing's SepBlur example, itself derived from http://callumhay.blogspot.com/2010/09/gaussian-blur-shader-glsl.html
+* `fx-hsv.pxg` - control the hue, saturation and value of the image. Derived from https://gamedev.stackexchange.com/a/59808
 * `fx-kaleidoscope.pxg` - kaleidoscope effect with controllable number of segments. GLSL code derived from https://github.com/neilmendoza/ofxPostProcessing/blob/master/src/KaleidoscopePass.cpp
 * `fx-noise-warp.pxg` - noise warp image effect. GLSL code derived from https://github.com/ashima/webgl-noise
 * `fx-pinch.pxg` - pinch image effect.
