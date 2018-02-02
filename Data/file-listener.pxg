@@ -1,0 +1,84 @@
+@ ./filelistener core:custom {
+  #%graph.x 0
+  #%graph.y 0
+  .code "import java.nio.file.*;
+import java.io.*;
+import java.util.stream.Collectors;
+
+
+    @Out(1) Output out;    
+    
+    @P(1)
+    Property file;
+    
+    @Inject Ref<WatchService> watcher;
+    
+    Path path;
+
+    @Override
+    public void setup() \{
+        file.valuesAs(Value::toString).link(s -> \{
+            if (s.isEmpty()) \{
+                path = null;
+                watcher.clear();
+            \} else \{
+                try \{
+                    Path p = Paths.get(s);
+                    if (!p.equals(path)) \{
+                        path = p;
+                        watcher.clear();
+                    \}
+                \} catch (Exception ex) \{
+                    log(ERROR, ex);
+                \}
+            \}
+            watcher.init(this::createWatchService);
+        \});
+    \}
+
+    @Override
+    public void update() \{
+        watcher.ifPresent(w -> \{
+            WatchKey key;
+            while ((key = w.poll()) != null) \{
+                for (WatchEvent<?> event : key.pollEvents()) \{
+                    Path p = (Path) event.context();
+                    if (p.equals(path.getFileName())) \{
+                        log(INFO, \"File modified\\n\" + event);
+                        sendFileContents();
+                    \}
+                \}
+                key.reset();
+            \}
+        \});
+
+    \}
+    
+    WatchService createWatchService() \{
+        if (path == null) \{
+            out.send(\"\");
+            return null;
+        \}
+        try \{
+            WatchService ws = FileSystems.getDefault().newWatchService();
+            path.getParent().register(ws,
+                    StandardWatchEventKinds.ENTRY_MODIFY,
+                    StandardWatchEventKinds.ENTRY_CREATE);
+            sendFileContents();
+            return ws;
+        \} catch (IOException ex) \{
+            log(ERROR, ex);
+            return null;
+        \}
+    \}
+    
+    void sendFileContents() \{
+        try \{
+            out.send(Files.lines(path).collect(Collectors.joining(\"\\n\")));
+        \} catch (IOException ex) \{
+            log(ERROR, ex);
+        \}
+    \}
+    
+"
+}

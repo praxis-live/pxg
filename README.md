@@ -18,6 +18,12 @@ Components that can be used in any graph (audio, video, tinkerforge, etc.).
 * `array-map.pxg` (experimental) - map a range from 0 to 1 to values in an array.
 * `normalize.pxg` (experimental) - normalize incoming signals to between 0 and 1.
 
+### Data
+
+Components that can be used in any graph, but _should_ really only be used in a generic data patch (`root:data`).
+
+* `file-listener.pxg` (experimental) - given an absolute path to a (text) file, will load and send the contents, then listen and reload/resend on file changes. Can be connected to `core:routing:send` to send updated code to another component.
+
 ### Audio
 
 Components that can be used in any audio graph.
