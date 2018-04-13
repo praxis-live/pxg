@@ -3,9 +3,9 @@
   #%graph.y 0
   .code "
 
-    @P(1) @Port(false) PFont font;
+    @P(1) @Config.Port(false) PFont font;
     @P(2) String text;
-    @P(3) @Port(false) @Type.Integer(min=1,max=256,def=14) int fontSize;
+    @P(3) @Config.Port(false) @Type.Integer(min=1,max=256,def=14) int fontSize;
     @P(4) @Type.Number(min=0, max=1, def=0.5) double alignX;
     @P(5) @Type.Number(min=0, max=1, def=0.5) double alignY;
     @P(6) @Type.Number(min=0, max=1, def=1) double r;

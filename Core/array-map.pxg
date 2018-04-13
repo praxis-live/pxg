@@ -3,7 +3,7 @@
   #%graph.y 0
   .code "
 
-    @P(1) @Type(cls = PArray.class) @OnChange(\"extractArray\") @Port(false)
+    @P(1) @Type(cls = PArray.class) @OnChange(\"extractArray\") @Config.Port(false)
     Property values;
     @P(2) @Type.Number(min=0, max=1) @OnChange(\"mapValue\")
     double in;

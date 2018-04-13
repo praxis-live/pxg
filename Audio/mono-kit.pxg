@@ -6,18 +6,18 @@
     @Out(1)
     AudioOut out;
     
-    @P(1) @OnChange(\"updateTables\") @Port(false)
-    Table sample1;
-    @P(2) @OnChange(\"updateTables\") @Port(false)
-    Table sample2;
-    @P(3) @OnChange(\"updateTables\") @Port(false)
-    Table sample3;
-    @P(4) @OnChange(\"updateTables\") @Port(false)
-    Table sample4;
-    @P(5) @OnChange(\"updateTables\") @Port(false)
-    Table sample5;
-    @P(6) @OnChange(\"updateTables\") @Port(false)
-    Table sample6;
+    @P(1) @OnChange(\"updateTables\") @Config.Port(false)
+    AudioTable sample1;
+    @P(2) @OnChange(\"updateTables\") @Config.Port(false)
+    AudioTable sample2;
+    @P(3) @OnChange(\"updateTables\") @Config.Port(false)
+    AudioTable sample3;
+    @P(4) @OnChange(\"updateTables\") @Config.Port(false)
+    AudioTable sample4;
+    @P(5) @OnChange(\"updateTables\") @Config.Port(false)
+    AudioTable sample5;
+    @P(6) @OnChange(\"updateTables\") @Config.Port(false)
+    AudioTable sample6;
 
     @T(1) Trigger play1;
     @T(2) Trigger play2;
