@@ -17,7 +17,7 @@
     @P(0)
     @Type.String(mime = GLSL_FRAGMENT_MIME, template = DEFAULT_FRAGMENT_SHADER)
     @OnChange(\"updateShader\")
-    @Port(false)
+    @Config.Port(false)
     String fragment;
 
     PShader shader;

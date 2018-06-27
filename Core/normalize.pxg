@@ -4,7 +4,7 @@
   .code "
 
     @P(1) @ReadOnly double max;
-    @P(2) @Type.Number(min = 0, max = 0.1) @Port(false) double decrement;
+    @P(2) @Type.Number(min = 0, max = 0.1) @Config.Port(false) double decrement;
     
     @Out(1) Output out;
     

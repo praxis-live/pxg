@@ -3,7 +3,7 @@
   #%graph.y 0
   .code "
 
-    @P(1) @Port(false) PShape svg;
+    @P(1) @Config.Port(false) PShape svg;
     @P(2) @Type.Number(min=0, max=1, def=0.5) double x;
     @P(3) @Type.Number(min=0, max=1, def=0.5) double y;
     @P(4) @Type.Number(min=0, max=8, def=1, skew=4) double scale;
