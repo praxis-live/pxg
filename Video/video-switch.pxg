@@ -1,0 +1,46 @@
+#%praxis.version 4.1.1
+@ ./video-switch video:custom {
+  #%graph.x 0
+  #%graph.y 0
+  .code "
+
+    @In(1) PImage in1;
+    @In(2) PImage in2;
+    @In(3) PImage in3;
+    @In(4) PImage in4;
+    
+    @P(1) @Type.Integer(min=1, max=4, def=1)
+    int channel;
+
+    @Override
+    public void init() \{
+        attachRenderQuery(\"in-1\", rendering -> rendering && channel == 1);
+        attachRenderQuery(\"in-2\", rendering -> rendering && channel == 2);
+        attachRenderQuery(\"in-3\", rendering -> rendering && channel == 3);
+        attachRenderQuery(\"in-4\", rendering -> rendering && channel == 4);
+    \}
+    
+    @Override
+    public void draw() \{
+        switch (channel) \{
+            case 1 :
+                copy(in1);
+                release(in1);
+                break;
+            case 2 :
+                copy(in2);
+                release(in2);
+                break;
+            case 3 :
+                copy(in3);
+                release(in3);
+                break;
+            case 4 :
+                copy(in4);
+                release(in4);
+                break;
+        \}
+    \}
+    
+"
+}
