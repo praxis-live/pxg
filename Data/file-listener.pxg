@@ -1,14 +1,14 @@
-@ ./filelistener core:custom {
+#%praxis.version 4.1.1
+@ ./file-listener core:custom {
   #%graph.x 0
   #%graph.y 0
   .code "import java.nio.file.*;
 import java.io.*;
-import java.util.stream.Collectors;
 
 
     @Out(1) Output out;    
     
-    @P(1)
+    @P(1) @Type(PResource.class)
     Property file;
     
     @Inject Ref<WatchService> watcher;
@@ -16,23 +16,22 @@ import java.util.stream.Collectors;
     Path path;
 
     @Override
-    public void setup() \{
-        file.valuesAs(Value::toString).link(s -> \{
-            if (s.isEmpty()) \{
+    public void init() \{
+        file.valuesAs(PResource::from).link(res -> \{
+            
+            try \{
+                path = res.map(r -> r.resolve(getLookup()))
+                        .flatMap(list -> list.stream()
+                            .filter(uri -> \"file\".equals(uri.getScheme()))
+                            .findFirst())
+                        .map(uri -> Paths.get(uri))
+                        .orElse(null);
+            \} catch (Exception ex) \{
+                log(ERROR, ex);
                 path = null;
-                watcher.clear();
-            \} else \{
-                try \{
-                    Path p = Paths.get(s);
-                    if (!p.equals(path)) \{
-                        path = p;
-                        watcher.clear();
-                    \}
-                \} catch (Exception ex) \{
-                    log(ERROR, ex);
-                \}
             \}
-            watcher.init(this::createWatchService);
+            
+            watcher.clear().init(this::createWatchService);
         \});
     \}
 
